@@ -33,10 +33,10 @@ WITH
     pathway_count,
     COUNT(complex) AS complex_count
 RETURN 
-    species.displayName AS species,
-    protein_count AS protein,
-    isoform_count AS isoform,
-    complex_count AS complex,
-    reaction_count AS reaction,
-    pathway_count AS pathway
-ORDER BY reaction DESC
+    species.displayName AS SPECIES,
+    protein_count AS PROTEINS,
+    isoform_count AS ISOFORMS,
+    complex_count AS COMPLEXES,
+    reaction_count AS REACTIONS,
+    pathway_count AS PATHWAYS
+ORDER BY REACTIONS DESC

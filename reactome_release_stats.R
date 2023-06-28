@@ -1,39 +1,80 @@
-# Check and install packages needed.
-packages <- c("tidyverse", "ggplot2", "magrittr", "ggiraph", "patchwork", "htmlwidgets", "plotly", "pandoc")
+#!/usr/bin/env Rscript
 
-using <- function(...) {
-    libs<-unlist(list(...))
-    req<-unlist(lapply(libs,require,character.only=TRUE))
-    need<-libs[req==FALSE]
-    if(length(need)>0){ 
-        install.packages(need, repos = "http://cran.us.r-project.org")
-        lapply(need,require,character.only=TRUE)
-    }
-}
-using(packages)
+suppressPackageStartupMessages(library("docopt"))
+suppressPackageStartupMessages(library('tidyverse'))
+suppressPackageStartupMessages(library('magrittr'))
+suppressPackageStartupMessages(library('ggiraph'))
+suppressPackageStartupMessages(library('htmlwidgets'))
+suppressPackageStartupMessages(library('plotly'))
+suppressPackageStartupMessages(library('pandoc'))
+suppressPackageStartupMessages(library('ggtree'))
+suppressPackageStartupMessages(library('patchwork'))
+suppressPackageStartupMessages(library('neo4jshell'))
+suppressPackageStartupMessages(library('xtable'))
 
-# ggtree is at bioconduct, need something specially for it
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager", repos = "http://cran.us.r-project.org")
-if (!require("ggtree", quietly = TRUE)) {
-    BiocManager::install("ggtree")
-    require("ggtree")
-}
+'Statistics Generator
 
-# Files to use
-tree_file <- "species_tree.nwk"
-release_version <- "85"
-release_date <- "June 2023"
-stats_data <- paste(release_version, "release_stats", sep="/")
-ordered_table_out_file <- paste(release_version, "ordered_release_stats.tsv", sep="/")
+Usage:
+  reactome_release_stats.R [options] <release_date>
+  reactome_release_stats.R (-h | --help)
+  reactome_release_stats.R --version
+
+Options:
+  -h --help      Show this screen.
+  --version      Show version.
+  --host=<host>   Neo4j host [default: localhost]
+  --port=<port>   Neo4j port [default: 7687]
+  --user=<user>   Neo4j username [default: neo4j]
+  --password=<password> The password for neo4j database
+  --no-html    Set of you don\'t want to generate the interactive html file [default: FALSE]
+  --output=DIR  Folder to put output files into [default: output]
+  --tree=FILE    The species tree file [default: species_tree.nwk]
+
+' -> doc
+arguments <- docopt(doc, version="1.0.0")
+
+graphdb <- list(address = paste("bolt://",
+                                paste(arguments$host,
+                                      arguments$port,
+                                      sep=":"),
+                                sep=""),
+                uid = arguments$user,
+                pwd = arguments$password)
+
+CQL <- "MATCH (n:DBInfo) RETURN n.version AS version;"
+db_info = neo4j_query(graphdb, CQL)
+
+release_version = db_info[1,"version"]
+print(paste("release_version ", release_version, sep = ":"))
+
+species_file_path <- "./cypher_queries/species.cyp"
+CQL <- readChar(species_file_path, file.info(species_file_path)$size)
+species_data <- neo4j_query(graphdb, CQL)
+
+release_date = arguments$release_date
+tree_file <- arguments$tree
+need_html = ifelse(arguments$no_html == 'TRUE', FALSE, TRUE)
+
+
+stats_data = paste(arguments$output, "release_stats", sep = "/")
+write.table(species_data,
+            file = stats_data,
+            quote = FALSE,
+            sep ="\t",
+            row.names = FALSE,
+            col.names = TRUE)
+
 four_stats_out_file <- stats_data
-reaction_stats_out_file <- paste(release_version, "reaction_release_stats", sep = "/")
-need_html <- FALSE # Off by default
+ordered_table_out_file_tsv <- paste(arguments$output, "ordered_release_stats.tsv", sep="/")
+ordered_table_out_file_html <- paste(arguments$output, "ordered_release_stats.html", sep="/")
+reaction_stats_out_file <- paste(arguments$output, "reaction_release_stats", sep = "/")
+
 
 plot_stats <- function(stats_data,
                        four_stats_out_file,
                        reaction_stats_out_file,
-                       ordered_table_out_file,
+                       ordered_table_out_file_tsv,
+                       ordered_table_out_file_html,
                        release_version,
                        release_date,
                        tree_file,
@@ -48,23 +89,29 @@ plot_stats <- function(stats_data,
     
     # Match the full names with the short names in the stats data file.
     ordered_short_names <- paste0(substring(ordered_names, 1, 1),". ", gsub("([A-z]+)\\s([A-z]+)", "\\2", ordered_names))
-    ordered_short_names <- ifelse(ordered_short_names == "H. sapiens",  "*H. sapiens", ordered_short_names)
-    name_key <- data_frame(SPECIES = ordered_short_names, full_name = ordered_names)
-    
+    name_key <- tibble(SPECIES = ordered_names, short_name = ordered_short_names, full_name=ordered_names)
+
     #read data file and transform into long format.
     raStats <- read.delim(file = stats_data)
-    raStats <- raStats %>% head (n=15) %>% arrange(match(SPECIES, ordered_short_names))# match the order of species in table and tree
-    write.table(raStats, ordered_table_out_file, quote = FALSE, sep = "\t", row.names = FALSE) # save ordered data as table
+    raStats <- raStats %>% head (n=15) %>% arrange(match(SPECIES, ordered_names))# match the order of species in table and tree
+    write.table(raStats, ordered_table_out_file_tsv, quote = FALSE, sep = "\t", row.names = FALSE) # save ordered data as table
+
+    print(xtable(raStats),
+          include.rownames=FALSE,
+          type="html",
+          file=ordered_table_out_file_html)
+
     raStats_long <- raStats %>% head(n=15) %>% pivot_longer(-SPECIES, names_to = "feature", values_to = "counts") %>%
                     inner_join(name_key, by= "SPECIES")
+
     title_str <- paste0(paste0("Reactome Version ", release_version), "\n", "Panther\n", release_date)
-    
+
     #factor catgories and subcatgories.
     raStats_long$full_name <- factor(raStats_long$full_name,
                                      levels = ordered_names)
     raStats_long$feature <- factor(raStats_long$feature,
-                                   levels = c("PATHWAYS", "REACTIONS", "COMPLEXES", "PROTEINS"))
-    
+                                   levels = c("PATHWAYS", "REACTIONS", "COMPLEXES", "PROTEINS", "ISOFORMS"))
+
     # plot all four features along with tree
     raStats_long <- raStats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature))
     bar_plot <- raStats_long %>% ggplot(aes(x= full_name, y = counts, fill = feature, 
@@ -76,7 +123,7 @@ plot_stats <- function(stats_data,
         coord_flip() +
         ggtitle(title_str) +
         scale_x_discrete(limits = rev(levels(raStats_long$full_name))) +
-        scale_fill_manual(values = c('blue','red', 'green','grey')) +
+        scale_fill_manual(values = c('blue', 'red', 'green','grey', 'yellow')) +
         theme(panel.background = element_blank(),
               plot.title = element_text(size = 16, face = "bold",
                                         vjust = -16, hjust = 1),
@@ -96,12 +143,10 @@ plot_stats <- function(stats_data,
     
     # plot "reactions" counts along with tree, normalized to counts in H. sapiens.
     raStats_rxns <- raStats %>% mutate(pct_rxns = 100*REACTIONS/max(REACTIONS))
-    
     raStats_rxns$SPECIES <- factor(raStats_rxns$SPECIES,
-                               levels = ordered_short_names)
-   
+                               levels = ordered_names)
     rxn_plot <- raStats_rxns %>% ggplot(aes(x= SPECIES, y = pct_rxns)) +
-      geom_bar(aes(color = ifelse(SPECIES == "*H. sapiens", "highlight", "default")), 
+      geom_bar(aes(color = ifelse(SPECIES == "Homo sapiens", "highlight", "default")),
                stat="identity", fill = "red", width = 0.7, linewidth = 0.5 )+
       scale_color_manual(values = c(highlight = "black", default = "gray")) +
       geom_hline(yintercept = 0, linewidth = 0.2) + 
@@ -138,36 +183,12 @@ plot_stats <- function(stats_data,
     }
 }
 
-# Get parameters from the command
-args <- commandArgs(TRUE);
-
-# two arguemtns should be provided at least
-if (length(args) < 2) {
-    stop("Two arguments are needed (release_version release_date)");
-}
-
-if (length(args) == 2) {
-    release_version = args[1]
-    release_date = args[2]
-}else if (length(args) == 3) { # Don't put this as a new line in R
-    release_version = args[1]
-    release_date = args[2]
-    need_html = ifelse(args[3] == 'TRUE', TRUE, FALSE)
-}else if (length(args) == 8) { # Don't put this as a new line in R
-    release_version = args[1]
-    release_date = args[2]
-    need_html = ifelse(args[3] == 'TRUE', TRUE, FALSE)
-    stats_data = args[4]
-    four_stats_out_file = args[5]
-    reaction_stats_out_file = args[6]
-    ordered_table_out_file = args[7]
-    tree_file = args[8]
-}
 
 plot_stats(stats_data,
            four_stats_out_file,
            reaction_stats_out_file,
-           ordered_table_out_file,
+           ordered_table_out_file_tsv,
+           ordered_table_out_file_html,
            release_version,
            release_date,
            tree_file,
