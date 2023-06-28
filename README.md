@@ -41,6 +41,7 @@ Options:
 - ordered_release_stats.html
 - release_stats.html (if need_html is set as TRUE)
 - release_stats_files (if need_html is set as TRUE. A folder contains required JavaScript libraries)
+- summary_stats.json
 
 
 

@@ -11,6 +11,7 @@ suppressPackageStartupMessages(library('ggtree'))
 suppressPackageStartupMessages(library('patchwork'))
 suppressPackageStartupMessages(library('neo4jshell'))
 suppressPackageStartupMessages(library('xtable'))
+suppressPackageStartupMessages(library('jsonlite'))
 
 'Statistics Generator
 
@@ -45,16 +46,15 @@ CQL <- "MATCH (n:DBInfo) RETURN n.version AS version;"
 db_info = neo4j_query(graphdb, CQL)
 
 release_version = db_info[1,"version"]
-print(paste("release_version ", release_version, sep = ":"))
+print(paste("release_version", release_version, sep = ": "))
 
-species_file_path <- "./cypher_queries/species.cyp"
-CQL <- readChar(species_file_path, file.info(species_file_path)$size)
+species_query_file_path <- "./cypher_queries/species.cyp"
+CQL <- readChar(species_query_file_path, file.info(species_query_file_path)$size)
 species_data <- neo4j_query(graphdb, CQL)
 
 release_date = arguments$release_date
 tree_file <- arguments$tree
 need_html = ifelse(arguments$no_html == 'TRUE', FALSE, TRUE)
-
 
 stats_data = paste(arguments$output, "release_stats", sep = "/")
 write.table(species_data,
@@ -67,8 +67,15 @@ write.table(species_data,
 four_stats_out_file <- stats_data
 ordered_table_out_file_tsv <- paste(arguments$output, "ordered_release_stats.tsv", sep="/")
 ordered_table_out_file_html <- paste(arguments$output, "ordered_release_stats.html", sep="/")
-reaction_stats_out_file <- paste(arguments$output, "reaction_release_stats", sep = "/")
+reaction_stats_out_file <- paste(arguments$output, "reaction_release_stats", sep="/")
+summary_stats_out_file <- paste(arguments$output, "summary_stats.json", sep="/")
 
+summary_query_filepath <- "./cypher_queries/summary.cyp"
+CQL <- readChar(summary_query_filepath, file.info(summary_query_filepath)$size)
+summary_data <- neo4j_query(graphdb, CQL)
+
+summary_json = toJSON(summary_data, pretty=TRUE)
+cat(summary_json, file=summary_stats_out_file)
 
 plot_stats <- function(stats_data,
                        four_stats_out_file,

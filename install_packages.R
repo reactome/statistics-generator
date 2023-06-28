@@ -14,6 +14,7 @@ install.packages("neo4jshell")
 install.packages("docopt")
 install.packages("patchwork")
 install.packages("xtable")
+install.packages("jsonlite")
 
 # ggtree is at bioconduct, need something specially for it
 install.packages("BiocManager", repos = "http://cran.us.r-project.org")
