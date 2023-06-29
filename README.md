@@ -56,13 +56,13 @@ release_date should be something like "June 2023" (Quotation marks are needed!)
 To create the file run:
 
 ```bash
-make create-image
+make build-image
 ```
 
 Here is an example command for running the image:
 
 ```bash
-make build-image; docker run -v $(pwd)/output:/output --net=host  reactome/statistics-generator:1.0.0 /bin/bash -c 'Rscript reactome_release_stats.R "June 2023"'
+docker run -v $(pwd)/output:/output --net=host  reactome/statistics-generator:1.0.0 /bin/bash -c 'Rscript reactome_release_stats.R "June 2023"'
 ```
 
 setting "net" equal to "host" will make it so that the statistics-generator has access to the noe4j running on the host.
