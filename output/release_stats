@@ -1,0 +1,17 @@
+SPECIES	PROTEINS	ISOFORMS	COMPLEXES	REACTIONS	PATHWAYS
+Homo sapiens	11074	204	14192	14516	2615
+Mus musculus	9593	28	10729	9564	1718
+Rattus norvegicus	8859	10	9568	8402	1705
+Bos taurus	8897	0	9252	8109	1699
+Sus scrofa	8464	0	8890	7599	1663
+Canis familiaris	8215	0	8785	7498	1660
+Danio rerio	8687	0	8514	7429	1679
+Gallus gallus	7344	1	7980	6886	1708
+Xenopus tropicalis	7086	0	7382	6200	1582
+Drosophila melanogaster	4806	3	5445	4626	1480
+Caenorhabditis elegans	4506	0	4431	3718	1310
+Dictyostelium discoideum	2782	0	2548	2325	990
+Saccharomyces cerevisiae	1920	0	1829	1574	817
+Schizosaccharomyces pombe	1771	0	1845	1494	822
+Plasmodium falciparum	1147	0	1043	867	602
+Mycobacterium tuberculosis	97	0	54	44	13
