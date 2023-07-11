@@ -32,50 +32,48 @@ Options:
   --tree=FILE    The species tree file [default: species_tree.nwk]
 
 ' -> doc
-arguments <- docopt(doc, version="1.0.0")
+arguments <- docopt(doc, version = "1.0.0")
 
-graphdb <- list(address = paste("bolt://",
-                                paste(arguments$host,
-                                      arguments$port,
-                                      sep=":"),
-                                sep=""),
-                uid = arguments$user,
-                pwd = arguments$password)
+graphdb <- list(
+  address = paste0("bolt://", paste(arguments$host, arguments$port, sep = ":")),
+  uid = arguments$user,
+  pwd = arguments$password
+)
 
 CQL <- "MATCH (n:DBInfo) RETURN n.version AS version;"
-db_info = neo4j_query(graphdb, CQL)
+db_info <- neo4j_query(graphdb, CQL)
 
-release_version = db_info[1,"version"]
+release_version <- db_info[1, "version"]
 print(paste("release_version", release_version, sep = ": "))
 
 species_query_file_path <- "./cypher_queries/species.cyp"
 CQL <- readChar(species_query_file_path, file.info(species_query_file_path)$size)
 species_data <- neo4j_query(graphdb, CQL)
 
-release_date = arguments$release_date
+release_date <- arguments$release_date
 tree_file <- arguments$tree
-need_html = ifelse(arguments$no_html == 'TRUE', FALSE, TRUE)
+need_html <- ifelse(arguments$no_html == 'TRUE', FALSE, TRUE)
 
-stats_data = paste(arguments$output, "release_stats", sep = "/")
+stats_data <- paste(arguments$output, "release_stats", sep = "/")
 write.table(species_data,
             file = stats_data,
             quote = FALSE,
-            sep ="\t",
+            sep = "\t",
             row.names = FALSE,
             col.names = TRUE)
 
 four_stats_out_file <- stats_data
-ordered_table_out_file_tsv <- paste(arguments$output, "ordered_release_stats.tsv", sep="/")
-ordered_table_out_file_html <- paste(arguments$output, "ordered_release_stats.html", sep="/")
-reaction_stats_out_file <- paste(arguments$output, "reaction_release_stats", sep="/")
-summary_stats_out_file <- paste(arguments$output, "summary_stats.json", sep="/")
+ordered_table_out_file_tsv <- paste(arguments$output, "ordered_release_stats.tsv", sep = "/")
+ordered_table_out_file_html <- paste(arguments$output, "ordered_release_stats.html", sep = "/")
+reaction_stats_out_file <- paste(arguments$output, "reaction_release_stats", sep = "/")
+summary_stats_out_file <- paste(arguments$output, "summary_stats.json", sep = "/")
 
 summary_query_filepath <- "./cypher_queries/summary.cyp"
 CQL <- readChar(summary_query_filepath, file.info(summary_query_filepath)$size)
 summary_data <- neo4j_query(graphdb, CQL)
 
-summary_json = toJSON(summary_data, pretty=TRUE)
-cat(summary_json, file=summary_stats_out_file)
+summary_json <- toJSON(summary_data, pretty = TRUE)
+cat(summary_json, file = summary_stats_out_file)
 
 plot_stats <- function(stats_data,
                        four_stats_out_file,
@@ -86,38 +84,42 @@ plot_stats <- function(stats_data,
                        release_date,
                        tree_file,
                        need_html = FALSE) {
-    # Make phyloTree.
-    phylotree <- read.tree(file = tree_file)
-    phylotree$tip.label <- gsub("_", " ", phylotree$tip.label)
-    tree <- ggtree(phylotree, layout = "rectangular", ladderize = FALSE, size = 0.6) +
-            geom_tiplab(as_ylab = TRUE, size = 10)
-    
-    ordered_names <- get_taxa_name()
-    
-    # Match the full names with the short names in the stats data file.
-    ordered_short_names <- paste0(substring(ordered_names, 1, 1),". ", gsub("([A-z]+)\\s([A-z]+)", "\\2", ordered_names))
-    name_key <- tibble(SPECIES = ordered_names, short_name = ordered_short_names, full_name=ordered_names)
+  # Make phyloTree.
+  phylotree <- read.tree(file = tree_file)
+  phylotree$tip.label <- gsub("_", " ", phylotree$tip.label)
+  tree <- ggtree(phylotree, layout = "rectangular", ladderize = FALSE, size = 0.6) +
+    geom_tiplab(as_ylab = TRUE, size = 10)
 
-    #read data file and transform into long format.
-    raStats <- read.delim(file = stats_data)
-    raStats <- raStats %>% head (n=15) %>% arrange(match(SPECIES, ordered_names))# match the order of species in table and tree
-    write.table(raStats, ordered_table_out_file_tsv, quote = FALSE, sep = "\t", row.names = FALSE) # save ordered data as table
+  ordered_names <- get_taxa_name()
 
-    print(xtable(raStats),
-          include.rownames=FALSE,
-          type="html",
-          file=ordered_table_out_file_html)
+  # Match the full names with the short names in the stats data file.
+  ordered_short_names <- paste0(substring(ordered_names, 1, 1), ". ", gsub("([A-z]+)\\s([A-z]+)", "\\2", ordered_names))
+  name_key <- tibble(SPECIES = ordered_names, short_name = ordered_short_names, full_name = ordered_names)
 
-    raStats_long <- raStats %>% head(n=15) %>% pivot_longer(-SPECIES, names_to = "feature", values_to = "counts") %>%
-                    inner_join(name_key, by= "SPECIES")
+  #read data file and transform into long format.
+  raStats <- read.delim(file = stats_data)
+  raStats <- raStats %>%
+    head(n = 15) %>%
+    arrange(match(SPECIES, ordered_names)) # match the order of species in table and tree
+  write.table(raStats, ordered_table_out_file_tsv, quote = FALSE, sep = "\t", row.names = FALSE) # save ordered data as table
 
-    title_str <- paste0(paste0("Reactome Version ", release_version), "\n", "Panther\n", release_date)
+  print(xtable(raStats),
+        include.rownames = FALSE,
+        type = "html",
+        file = ordered_table_out_file_html)
 
-    #factor catgories and subcatgories.
-    raStats_long$full_name <- factor(raStats_long$full_name,
-                                     levels = ordered_names)
-    raStats_long$feature <- factor(raStats_long$feature,
-                                   levels = c("PATHWAYS", "REACTIONS", "COMPLEXES", "PROTEINS", "ISOFORMS"))
+  raStats_long <- raStats %>%
+    head(n = 15) %>%
+    pivot_longer(-SPECIES, names_to = "feature", values_to = "counts") %>%
+    inner_join(name_key, by = "SPECIES")
+
+  title_str <- paste0(paste0("Reactome Version ", release_version), "\n", "Panther\n", release_date)
+
+  #factor catgories and subcatgories.
+  raStats_long$full_name <- factor(raStats_long$full_name,
+                                   levels = ordered_names)
+  raStats_long$feature <- factor(raStats_long$feature,
+                                 levels = c("PATHWAYS", "REACTIONS", "COMPLEXES", "PROTEINS", "ISOFORMS"))
 
     # plot all four features along with tree
     raStats_long <- raStats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature))
