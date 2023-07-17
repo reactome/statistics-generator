@@ -13,7 +13,7 @@ install.packages("magrittr")
 install.packages("neo4jshell")
 install.packages("docopt")
 install.packages("patchwork")
-install.packages("xtable")
+install.packages("gt")
 install.packages("jsonlite")
 
 # ggtree is at bioconduct, need something specially for it
