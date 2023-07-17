@@ -113,7 +113,7 @@ plot_stats <- function(stats_data,
     pivot_longer(-SPECIES, names_to = "feature", values_to = "counts") %>%
     inner_join(name_key, by = "SPECIES")
 
-  title_str <- paste0(paste0("Reactome Version ", release_version), "\n", "Panther\n", release_date)
+  title_str <- paste0("Reactome Version ", release_version, ", Panther, ", release_date)
 
   #factor catgories and subcatgories.
   raStats_long$full_name <- factor(raStats_long$full_name,
@@ -126,16 +126,17 @@ plot_stats <- function(stats_data,
   bar_plot <- raStats_long %>% ggplot(aes(x = full_name, y = counts, fill = feature,
                                           tooltip = tooltip,
                                           data_id = feature)) +
-    geom_bar_interactive(stat = "identity", position = "dodge", color = "black",
+    geom_bar_interactive(stat = "identity", position = "dodge", color = "#00000022",
                          linewidth = 0.2, width = 0.8) +
     geom_hline(yintercept = 0, linewidth = 0.2) +
     coord_flip() +
     ggtitle(title_str) +
     scale_x_discrete(limits = rev(levels(raStats_long$full_name))) +
-    scale_fill_manual(values = c('#FF8ACC' , '#9686F7',  '#84D9E1', '#8CF786', '#EDDD6F')) +
+    scale_y_continuous(limits = c(0, max(raStats_long$counts)), expand = c(0, 0)) +
+    scale_fill_manual(values = c('#FF8ACC', '#9686F7', '#84D9E1', '#8CF786', '#EDDD6F')) +
     theme(panel.background = element_blank(),
           plot.title = element_text(size = 16, face = "bold",
-                                    vjust = -16, hjust = 1),
+                                    vjust = 0, hjust = 0),
           axis.line.x = element_line(linewidth = 0.5),
           axis.text.y = element_blank(),
           axis.title.y = element_blank(),
@@ -148,9 +149,10 @@ plot_stats <- function(stats_data,
 
   combined_plot <- tree +
     bar_plot +
-    plot_layout(ncol = 2, widths = c(3, 3))
+    plot_layout(ncol = 2, widths = c(1, 3))
+
   # Output as a png file
-  ggsave(combined_plot, file = paste0(four_stats_out_file, ".png"), width = 14, height = 6, dpi = 300)
+  ggsave(combined_plot, file = paste0(four_stats_out_file, ".png"), width = 14, height = 8, dpi = 300)
 
   # plot "reactions" counts along with tree, normalized to counts in H. sapiens.
   raStats_rxns <- raStats %>% mutate(pct_rxns = 100 * REACTIONS / max(REACTIONS))
@@ -167,7 +169,7 @@ plot_stats <- function(stats_data,
     ylab("% of human reactions inferred for model organisms") +
     theme(panel.background = element_blank(),
           plot.title = element_text(size = 14, face = "bold",
-                                    vjust = -16, hjust = 0.95),
+                                    vjust = 0, hjust = 0.95),
           axis.line.x = element_line(linewidth = 0.5),
           axis.text.y = element_blank(),
           axis.line.y = element_blank(),
@@ -177,15 +179,16 @@ plot_stats <- function(stats_data,
 
   combined_plot_rxns <- tree +
     rxn_plot +
-    plot_layout(ncol = 2, widths = c(3, 3))
-  ggsave(combined_plot_rxns, file = paste0(reaction_stats_out_file, ".png"), width = 14, height = 6, dpi = 300)
+    plot_layout(ncol = 2, widths = c(1, 3))
+  ggsave(combined_plot_rxns, file = paste0(reaction_stats_out_file, ".png"), width = 14, height = 8, dpi = 300)
 
 
   # See if we need an interactive file for test
   if (need_html) {
     ff <- girafe(
-      ggobj = combined_plot, width_svg = 14, height_svg = 6,
+      ggobj = combined_plot, width_svg = 14, height_svg = 8,
       options = list(
+        sizingPolicy(padding = 0),
         opts_hover_inv(css = "opacity:0.4;"),
         opts_hover(css = "stroke-width:0.5;"),
         opts_hover_key(css = "stroke-width:0.5;"),
