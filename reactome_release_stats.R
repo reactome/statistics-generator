@@ -8,9 +8,9 @@ suppressPackageStartupMessages(library('htmlwidgets'))
 suppressPackageStartupMessages(library('plotly'))
 suppressPackageStartupMessages(library('pandoc'))
 suppressPackageStartupMessages(library('ggtree'))
+suppressPackageStartupMessages(library('gt'))
 suppressPackageStartupMessages(library('patchwork'))
 suppressPackageStartupMessages(library('neo4jshell'))
-suppressPackageStartupMessages(library('xtable'))
 suppressPackageStartupMessages(library('jsonlite'))
 
 'Statistics Generator
@@ -103,10 +103,16 @@ plot_stats <- function(stats_data,
     arrange(match(SPECIES, ordered_names)) # match the order of species in table and tree
   write.table(raStats, ordered_table_out_file_tsv, quote = FALSE, sep = "\t", row.names = FALSE) # save ordered data as table
 
-  print(xtable(raStats),
-        include.rownames = FALSE,
-        type = "html",
-        file = ordered_table_out_file_html)
+  raStats |>
+    gt() |>
+    cols_align(align = 'right', columns = SPECIES) |>
+    cols_label(SPECIES = "Species", PROTEINS = "Proteins", ISOFORMS = "Isofroms", COMPLEXES = "Complexes", REACTIONS = "Reactions", PATHWAYS = "Pathways") |>
+    fmt_number(decimals = 0, use_seps = TRUE) |>
+    tab_style(style = cell_text(weight = "bold"), locations = cells_column_labels()) |>
+    tab_style(style = cell_text(style = "italic"), locations = cells_body(columns = SPECIES)) |>
+    as_raw_html() |>
+    write(file = ordered_table_out_file_html)
+
 
   raStats_long <- raStats %>%
     head(n = 15) %>%
