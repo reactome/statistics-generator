@@ -87,7 +87,7 @@ plot_stats <- function(stats_data,
   # Make phyloTree.
   phylotree <- read.tree(file = tree_file)
   phylotree$tip.label <- gsub("_", " ", phylotree$tip.label)
-  tree <- ggtree(phylotree, layout = "rectangular", ladderize = FALSE, size = 0.6) +
+  tree <- ggtree(phylotree, layout = "rectangular", ladderize = TRUE, size = 0.6, branch.length = "none") +
     geom_tiplab(as_ylab = TRUE, size = 10)
 
   ordered_names <- get_taxa_name()
