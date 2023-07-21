@@ -1,7 +1,5 @@
-
 docker-pull:
 	docker pull rocker/tidyverse:4.3.1
-
 
 .PHONY: build-image
 build-image: docker-pull \
