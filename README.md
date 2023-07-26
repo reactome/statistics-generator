@@ -2,15 +2,15 @@
 
 ## Cypher queries to generate automatically release statistics
 
-Cypher queries that are used to generate stats file. This file is used for the R script to generate image files for two Reaction web pages: [Statistics](https://reactome.org/about/statistics "Statistics") and [Computationally Inferred Events](https://reactome.org/documentation/inferred-events "Computationally Inferred Events")
+Cypher queries are used to generate stats files. This file is used for the R script to generate image files for two Reaction web pages: [Statistics](https://reactome.org/about/statistics "Statistics") and [Computationally Inferred Events](https://reactome.org/documentation/inferred-events "Computationally Inferred Events")
 
 ## R script to generate image files
 
 reactome_release_stats.R is used to generate the plot for the release stats. To use this script, install R first. It is supposed to work with the latest version of R. But it is recommended to use **R 4.2** to avoid any incompatibility headache with used libraries. 
 
-To run this script, the tree file, species_tree.nwk, is needed, . This tree file was generated using [TimeTree](http://timetree.org "timetree") and displayed on the linear timescale for distances between species.
+To run this script, the tree file, species_tree.nwk, is needed. This tree file was generated using [TimeTree](http://timetree.org "timetree") and displayed on the linear timescale for distances between species.
 
-To run this script, provide the following parameter in a script as following:
+To run this script, provide the following parameter in a script as follows:
 
 ```
 Rscipt reactome_release_stats.R --help
@@ -49,7 +49,7 @@ Reaction release stats are placed here: [https://reactome.org/documentation/infe
 
 release_date should be something like "June 2023" (Quotation marks are needed!)
 
-**Note: To make the interactive html version work, pandoc is need. Pandoc can be installed by following this doc: https://pandoc.org/installing.html**
+**Note: To make the interactive html version work, pandoc is needed. Pandoc can be installed by following this doc: https://pandoc.org/installing.html**
 
 ## Docker
 
