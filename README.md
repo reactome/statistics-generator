@@ -53,13 +53,13 @@ release_date should be something like "June 2023" (Quotation marks are needed!)
 
 ## Docker
 
-To create the file run:
+To create the image:
 
 ```bash
 make build-image
 ```
 
-Here is an example command for running the image:
+To run the image:
 
 ```bash
 docker run -v $(pwd)/output:/output --net=host  reactome/statistics-generator:1.0.0 /bin/bash -c 'Rscript reactome_release_stats.R "June 2023"'
