@@ -14,7 +14,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script{
-                    sh("eval \$(aws ecr get-login --no-include-email)")
+                    sh("eval \$(aws ecr get-login --no-include-email --region us-east-1)")
                     docker.withRegistry('https://851227637779.dkr.ecr.us-east-1.amazonaws.com', 'reactome-devops:aws-credentials') {
                         app.push("latest")
                     }
