@@ -66,3 +66,5 @@ docker run -v $(pwd)/output:/output --net=host  reactome/statistics-generator:1.
 ```
 
 setting "net" equal to "host" will make it so that the statistics-generator has access to the noe4j running on the host.
+
+This repo is being continuously integrated using Jenkins using the Jenkinsfile-ci
