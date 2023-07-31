@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+  
+    stages {
+        stage('Build') { 
+            steps { 
+                script{
+                 app = docker.build("statistics-generator-pull-request:$BUILD_NUMBER")
+                }
+            }
+        }
+        stage('Remove image') {
+            steps {
+                 sh "docker rmi -f statisitics-generator-pull-request:$BUILD_NUMBER"
+            }
+        }
+    }
+    post{
+        failure{
+            sh "docker rmi -f statisitics-generator-pull-request:$BUILD_NUMBER"
+        }
+        cleanup{
+            cleanWs()
+        }
+    }
+}
