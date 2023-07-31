@@ -6,7 +6,7 @@ Cypher queries are used to generate stats files. This file is used for the R scr
 
 ## R script to generate image files
 
-reactome_release_stats.R is used to generate the plot for the release stats. To use this script, install R first. It is supposed to work with the latest version of R. But it is recommended to use **R 4.2** to avoid any incompatibility headache with used libraries. 
+reactome_release_stats.R is used to generate the plot for the release stats. To use this script, install R first. It is supposed to work with the latest version of R. But using **R 4.2** is recommended to avoid any incompatibility headache with used libraries. 
 
 To run this script, the tree file, species_tree.nwk, is needed. This tree file was generated using [TimeTree](http://timetree.org "timetree") and displayed on the linear timescale for distances between species.
 
