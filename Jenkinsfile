@@ -56,7 +56,7 @@ pipeline {
             steps {
               script {
                 def releaseVersion = utils.getReleaseVersion()
-                sh "aws s3 sync ./output s3://download.reactome.org/$releaseVersion/test_stats/"
+                sh "aws s3 sync ./output s3://download.reactome.org/$releaseVersion/stats/"
               }
             }
         }
