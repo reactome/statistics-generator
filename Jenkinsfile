@@ -46,7 +46,7 @@ pipeline {
                     sh "sudo rm output/ -rf"
                     sh "mkdir -p output"
                     withCredentials([usernamePassword(credentialsId: 'neo4jUsernamePassword', passwordVariable: 'pass', usernameVariable: 'user')]){
-                        sh "docker run -v \$(pwd)output:/output --net=host  ${ECRURL}/statistics-generator:latest /bin/bash -c \'Rscript reactome_release_stats.R --user=$user --password=$pass \"${releaseMonth} ${releaseYear}\"\'"
+                        sh "docker run -v \$(pwd)/output:/output --net=host  ${ECRURL}/statistics-generator:latest /bin/bash -c \'Rscript reactome_release_stats.R --user=$user --password=$pass \"${releaseMonth} ${releaseYear}\"\'"
                     }
                 }
             }
