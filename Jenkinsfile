@@ -8,13 +8,17 @@ def utils = new Utilities()
 
 pipeline {
     agent any
-
+    
+    environment {
+       ECRURL = '851227637779.dkr.ecr.us-east-1.amazonaws.com'
+    }
+    
     stages {
         stage('pull image') {
             steps {
                 script{
                     sh("eval \$(aws ecr get-login --no-include-email --region us-east-1)")
-                    docker.withRegistry('https://851227637779.dkr.ecr.us-east-1.amazonaws.com') {
+                    docker.withRegistry("https://" + ECRURL) {
                         docker.image("statistics-generator:latest").pull()
                     }
                 }
@@ -23,7 +27,7 @@ pipeline {
       
         stage('generate stats files') {
             steps {
-                scripts {
+                script {
                     def userInput = input(
                             id: 'userInput', message: 'Enter The release date:?',
                             parameters: [
@@ -39,8 +43,9 @@ pipeline {
                     releaseMonth = userInput.month?:''
                     releaseYear = userInput.year?:''
                   
+                    sh "mkdir -p output"
                     withCredentials([usernamePassword(credentialsId: 'neo4jUsernamePassword', passwordVariable: 'pass', usernameVariable: 'user')]){
-                        sh "docker run -v \$(pwd)/output:/output --net=host  reactome/statistics-generator:latest /bin/bash -c \'Rscript reactome_release_stats.R --user=$user --password=$pass \"${releaseMonth} ${releaseYear}\"\'"
+                        sh "docker run -v \$(pwd)output:/output --net=host  ${ECRURL}/statistics-generator:latest /bin/bash -c \'Rscript reactome_release_stats.R --user=$user --password=$pass \"${releaseMonth} ${releaseYear}\"\'"
                     }
                 }
             }
@@ -50,7 +55,7 @@ pipeline {
             steps {
               script {
                 def releaseVersion = utils.getReleaseVersion()
-                sh "aws s3 sync ./output s3://download.reactome.org/$release_version/test_stats/"
+                sh "aws s3 sync ./output s3://download.reactome.org/$releaseVersion/test_stats/"
               }
             }
         }
