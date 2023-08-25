@@ -1,4 +1,5 @@
 # Statistics Generator
+
 ## Cypher queries to generate automatically release statistics
 
 Cypher queries are used to generate stats files. This file is used for the R script to generate image files for two Reaction web pages: [Statistics](https://reactome.org/about/statistics "Statistics") and [Computationally Inferred Events](https://reactome.org/documentation/inferred-events "Computationally Inferred Events")
