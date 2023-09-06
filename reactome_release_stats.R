@@ -106,7 +106,7 @@ plot_stats <- function(stats_data,
   raStats |>
     gt() |>
     cols_align(align = 'right', columns = SPECIES) |>
-    cols_label(SPECIES = "Species", PROTEINS = "Proteins", ISOFORMS = "Isofroms", COMPLEXES = "Complexes", REACTIONS = "Reactions", PATHWAYS = "Pathways") |>
+    cols_label(SPECIES = "Species", PROTEINS = "Proteins", ISOFORMS = "Isoforms", COMPLEXES = "Complexes", REACTIONS = "Reactions", PATHWAYS = "Pathways") |>
     fmt_number(decimals = 0, use_seps = TRUE) |>
     tab_style(style = cell_text(weight = "bold"), locations = cells_column_labels()) |>
     tab_style(style = cell_text(style = "italic"), locations = cells_body(columns = SPECIES)) |>
