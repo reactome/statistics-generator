@@ -1,4 +1,4 @@
-# Reactome Statistics Generator
+# Statistics Generator
 
 ## Cypher queries to generate automatically release statistics
 
