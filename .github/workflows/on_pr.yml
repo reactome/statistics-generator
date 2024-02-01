@@ -1,8 +1,9 @@
-name: statistics generator ci
+name: statistics generator on pr
 
 
 on:
     workflow_dispatch:
+    
     pull_request:
         types:
             - opened
