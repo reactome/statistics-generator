@@ -39,4 +39,4 @@ jobs:
                 IMG_TAG : latest 
               run: |
                 docker build -t $AWS_REGISTRY/$AWS_REPO:$IMG_TAG .
-                docker push $AWS_REGISTRY/$ECR_REPO:$IMG_TAG
+                docker push $AWS_REGISTRY/$AWS_REPO:$IMG_TAG
