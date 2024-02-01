@@ -14,7 +14,7 @@ env:
     AWS_REGION : us-east-1
     AWS_REGISTRY : 851227637779.dkr.ecr.us-east-1.amazonaws.com/
     AWS_REPO : statistics-generator
-    IMG_TAG: latest 
+    IMG_TAG : latest 
 
 
 permissions:
