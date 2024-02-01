@@ -12,9 +12,6 @@ on:
 env:
     AWS_ROLE : arn:aws:iam::851227637779:role/Github_Actions_CI
     AWS_REGION : us-east-1
-    AWS_REGISTRY : 851227637779.dkr.ecr.us-east-1.amazonaws.com
-    AWS_REPO : statistics-generator
-    IMG_TAG : latest 
 
 
 permissions:
@@ -32,7 +29,14 @@ jobs:
               with:
                 role-to-assume: ${{ env.AWS_ROLE }}
                 aws-region: ${{ env.AWS_REGION }}
+
+            - id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
             
-            - run: |
+            - env:
+                AWS_REGISTRY : ${{ steps.login-ecr.outputs.registry }}
+                AWS_REPO : statistics-generator
+                IMG_TAG : latest 
+              run: |
                 docker build -t $AWS_REGISTRY/$AWS_REPO:$IMG_TAG .
                 docker push $AWS_REGISTRY/$ECR_REPO:$IMG_TAG
