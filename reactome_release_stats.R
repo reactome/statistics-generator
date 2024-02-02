@@ -13,7 +13,7 @@ suppressPackageStartupMessages(library("patchwork"))
 suppressPackageStartupMessages(library("neo4jshell"))
 suppressPackageStartupMessages(library("jsonlite"))
 
-'Statistics Generator
+"Statistics Generator
 
 Usage:
   reactome_release_stats.R [options] <release_date>
@@ -31,7 +31,7 @@ Options:
   --output=DIR  Folder to put output files into [default: output]
   --tree=FILE    The species tree file [default: species_tree.nwk]
 
-' -> doc
+" -> doc
 arguments <- docopt(doc, version = "1.0.0")
 
 graphdb <- list(
@@ -52,7 +52,7 @@ species_data <- neo4j_query(graphdb, cql)
 
 release_date <- arguments$release_date
 tree_file <- arguments$tree
-need_html <- ifelse(arguments$no_html == 'TRUE', FALSE, TRUE)
+need_html <- ifelse(arguments$no_html == "TRUE", FALSE, TRUE)
 
 stats_data <- paste(arguments$output, "release_stats", sep = "/")
 write.table(species_data,
@@ -105,7 +105,7 @@ plot_stats <- function(stats_data,
 
   ra_stats |>
     gt() |>
-    cols_align(align = 'right', columns = SPECIES) |>
+    cols_align(align = "right", columns = SPECIES) |>
     cols_label(SPECIES = "Species", PROTEINS = "Proteins", ISOFORMS = "Isoforms", COMPLEXES = "Complexes", REACTIONS = "Reactions", PATHWAYS = "Pathways") |>
     fmt_number(decimals = 0, use_seps = TRUE) |>
     tab_style(style = cell_text(weight = "bold"), locations = cells_column_labels()) |>
