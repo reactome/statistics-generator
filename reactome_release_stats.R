@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+suppressPackageStartupMessages(library("ggplot2"))
+suppressPackageStartupMessages(library("girafe"))
+suppressPackageStartupMessages(library("dplyr"))
 suppressPackageStartupMessages(library("docopt"))
 suppressPackageStartupMessages(library("tidyverse"))
 suppressPackageStartupMessages(library("magrittr"))
