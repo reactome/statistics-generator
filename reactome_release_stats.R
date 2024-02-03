@@ -1,19 +1,19 @@
 #!/usr/bin/env Rscript
 
 suppressPackageStartupMessages(library("docopt"))
-suppressPackageStartupMessages(library('tidyverse'))
-suppressPackageStartupMessages(library('magrittr'))
-suppressPackageStartupMessages(library('ggiraph'))
-suppressPackageStartupMessages(library('htmlwidgets'))
-suppressPackageStartupMessages(library('plotly'))
-suppressPackageStartupMessages(library('pandoc'))
-suppressPackageStartupMessages(library('ggtree'))
-suppressPackageStartupMessages(library('gt'))
-suppressPackageStartupMessages(library('patchwork'))
-suppressPackageStartupMessages(library('neo4jshell'))
-suppressPackageStartupMessages(library('jsonlite'))
+suppressPackageStartupMessages(library("tidyverse"))
+suppressPackageStartupMessages(library("magrittr"))
+suppressPackageStartupMessages(library("ggiraph"))
+suppressPackageStartupMessages(library("htmlwidgets"))
+suppressPackageStartupMessages(library("plotly"))
+suppressPackageStartupMessages(library("pandoc"))
+suppressPackageStartupMessages(library("ggtree"))
+suppressPackageStartupMessages(library("gt"))
+suppressPackageStartupMessages(library("patchwork"))
+suppressPackageStartupMessages(library("neo4jshell"))
+suppressPackageStartupMessages(library("jsonlite"))
 
-'Statistics Generator
+"Statistics Generator
 
 Usage:
   reactome_release_stats.R [options] <release_date>
@@ -31,7 +31,7 @@ Options:
   --output=DIR  Folder to put output files into [default: output]
   --tree=FILE    The species tree file [default: species_tree.nwk]
 
-' -> doc
+" -> doc
 arguments <- docopt(doc, version = "1.0.0")
 
 graphdb <- list(
@@ -40,19 +40,19 @@ graphdb <- list(
   pwd = arguments$password
 )
 
-CQL <- "MATCH (n:DBInfo) RETURN n.version AS version;"
-db_info <- neo4j_query(graphdb, CQL)
+cql <- "MATCH (n:DBInfo) RETURN n.version AS version;"
+db_info <- neo4j_query(graphdb, cql)
 
 release_version <- db_info[1, "version"]
 print(paste("release_version", release_version, sep = ": "))
 
 species_query_file_path <- "./cypher_queries/species.cyp"
-CQL <- readChar(species_query_file_path, file.info(species_query_file_path)$size)
-species_data <- neo4j_query(graphdb, CQL)
+cql <- readChar(species_query_file_path, file.info(species_query_file_path)$size)
+species_data <- neo4j_query(graphdb, cql)
 
 release_date <- arguments$release_date
 tree_file <- arguments$tree
-need_html <- ifelse(arguments$no_html == 'TRUE', FALSE, TRUE)
+need_html <- ifelse(arguments$no_html == "TRUE", FALSE, TRUE)
 
 stats_data <- paste(arguments$output, "release_stats", sep = "/")
 write.table(species_data,
@@ -69,8 +69,8 @@ reaction_stats_out_file <- paste(arguments$output, "reaction_release_stats", sep
 summary_stats_out_file <- paste(arguments$output, "summary_stats.json", sep = "/")
 
 summary_query_filepath <- "./cypher_queries/summary.cyp"
-CQL <- readChar(summary_query_filepath, file.info(summary_query_filepath)$size)
-summary_data <- neo4j_query(graphdb, CQL)
+cql <- readChar(summary_query_filepath, file.info(summary_query_filepath)$size)
+summary_data <- neo4j_query(graphdb, cql)
 
 summary_json <- toJSON(summary_data, pretty = TRUE)
 cat(summary_json, file = summary_stats_out_file)
@@ -97,15 +97,15 @@ plot_stats <- function(stats_data,
   name_key <- tibble(SPECIES = ordered_names, short_name = ordered_short_names, full_name = ordered_names)
 
   #read data file and transform into long format.
-  raStats <- read.delim(file = stats_data)
-  raStats <- raStats %>%
+  ra_stats <- read.delim(file = stats_data)
+  ra_stats <- ra_stats %>%
     head(n = 15) %>%
     arrange(match(SPECIES, ordered_names)) # match the order of species in table and tree
-  write.table(raStats, ordered_table_out_file_tsv, quote = FALSE, sep = "\t", row.names = FALSE) # save ordered data as table
+  write.table(ra_stats, ordered_table_out_file_tsv, quote = FALSE, sep = "\t", row.names = FALSE) # save ordered data as table
 
-  raStats |>
+  ra_stats |>
     gt() |>
-    cols_align(align = 'right', columns = SPECIES) |>
+    cols_align(align = "right", columns = SPECIES) |>
     cols_label(SPECIES = "Species", PROTEINS = "Proteins", ISOFORMS = "Isoforms", COMPLEXES = "Complexes", REACTIONS = "Reactions", PATHWAYS = "Pathways") |>
     fmt_number(decimals = 0, use_seps = TRUE) |>
     tab_style(style = cell_text(weight = "bold"), locations = cells_column_labels()) |>
@@ -114,7 +114,7 @@ plot_stats <- function(stats_data,
     write(file = ordered_table_out_file_html)
 
 
-  raStats_long <- raStats %>%
+  ra_stats_long <- ra_stats %>%
     head(n = 15) %>%
     pivot_longer(-SPECIES, names_to = "feature", values_to = "counts") %>%
     inner_join(name_key, by = "SPECIES")
@@ -122,14 +122,14 @@ plot_stats <- function(stats_data,
   title_str <- paste0("Reactome Version ", release_version, ", Panther, ", release_date)
 
   #factor catgories and subcatgories.
-  raStats_long$full_name <- factor(raStats_long$full_name,
+  ra_stats_long$full_name <- factor(ra_stats_long$full_name,
                                    levels = ordered_names)
-  raStats_long$feature <- factor(raStats_long$feature,
+  ra_stats_long$feature <- factor(ra_stats_long$feature,
                                  levels = c("PATHWAYS", "REACTIONS", "COMPLEXES", "PROTEINS", "ISOFORMS"))
 
   # plot all four features along with tree
-  raStats_long <- raStats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature))
-  bar_plot <- raStats_long %>% ggplot(aes(x = full_name, y = counts, fill = feature,
+  ra_stats_long <- ra_stats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature))
+  bar_plot <- ra_stats_long %>% ggplot(aes(x = full_name, y = counts, fill = feature,
                                           tooltip = tooltip,
                                           data_id = feature)) +
     geom_bar_interactive(stat = "identity", position = "dodge", color = "#00000022",
@@ -137,9 +137,9 @@ plot_stats <- function(stats_data,
     geom_hline(yintercept = 0, linewidth = 0.2) +
     coord_flip() +
     ggtitle(title_str) +
-    scale_x_discrete(limits = rev(levels(raStats_long$full_name))) +
-    scale_y_continuous(limits = c(0, max(raStats_long$counts)), expand = c(0, 0)) +
-    scale_fill_manual(values = c('#FF8ACC', '#9686F7', '#84D9E1', '#8CF786', '#EDDD6F')) +
+    scale_x_discrete(limits = rev(levels(ra_stats_long$full_name))) +
+    scale_y_continuous(limits = c(0, max(ra_stats_long$counts)), expand = c(0, 0)) +
+    scale_fill_manual(values = c("#FF8ACC", "#9686F7", "#84D9E1", "#8CF786", "#EDDD6F")) +
     theme(panel.background = element_blank(),
           plot.title = element_text(size = 16, face = "bold",
                                     vjust = 0, hjust = 0),
@@ -161,17 +161,17 @@ plot_stats <- function(stats_data,
   ggsave(combined_plot, file = paste0(four_stats_out_file, ".png"), width = 14, height = 8, dpi = 300)
 
   # plot "reactions" counts along with tree, normalized to counts in H. sapiens.
-  raStats_rxns <- raStats %>% mutate(pct_rxns = 100 * REACTIONS / max(REACTIONS))
-  raStats_rxns$SPECIES <- factor(raStats_rxns$SPECIES,
+  ra_stats_rxns <- ra_stats %>% mutate(pct_rxns = 100 * REACTIONS / max(REACTIONS))
+  ra_stats_rxns$SPECIES <- factor(ra_stats_rxns$SPECIES,
                                  levels = ordered_names)
-  rxn_plot <- raStats_rxns %>% ggplot(aes(x = SPECIES, y = pct_rxns)) +
+  rxn_plot <- ra_stats_rxns %>% ggplot(aes(x = SPECIES, y = pct_rxns)) +
     geom_bar(aes(color = ifelse(SPECIES == "Homo sapiens", "highlight", "default")),
              stat = "identity", fill = "#006782", width = 0.7, linewidth = 0.5) +
     scale_color_manual(values = c(highlight = "black", default = "gray")) +
     geom_hline(yintercept = 0, linewidth = 0.2) +
     ggtitle(title_str) +
     coord_flip() +
-    scale_x_discrete(limits = rev(levels(raStats_rxns$SPECIES))) +
+    scale_x_discrete(limits = rev(levels(ra_stats_rxns$SPECIES))) +
     ylab("% of human reactions inferred for model organisms") +
     theme(panel.background = element_blank(),
           plot.title = element_text(size = 14, face = "bold",
