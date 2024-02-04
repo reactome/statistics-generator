@@ -2,17 +2,17 @@ FROM rocker/tidyverse:4.3.1
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update
-RUN apt-get install libssl-dev -y
-RUN apt-get install libcurl4-openssl-dev -y
-RUN apt-get install libfontconfig1-dev -y
-RUN apt-get install libxml2-dev -y
-RUN apt-get install libssh-dev -y
-RUN apt-get install curl -y
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libfontconfig1-dev \
+    libxml2-dev \
+    libssh-dev \
+    curl
 
-RUN curl -o /tmp/cyphershell.deb 'https://dist.neo4j.org/cypher-shell/cypher-shell_4.2.2_all.deb'
-RUN apt-get install /tmp/cyphershell.deb -y 
-RUN rm -f /tmp/cyphershell.deb
+RUN curl -o /tmp/cyphershell.deb 'https://dist.neo4j.org/cypher-shell/cypher-shell_4.2.2_all.deb' && \
+    apt-get install -y /tmp/cyphershell.deb && \
+    rm -f /tmp/cyphershell.deb
 
 COPY install_packages.R install_packages.R
 
