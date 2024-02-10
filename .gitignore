@@ -1,1 +1,31 @@
+# output folder from running the R package
 output/
+
+# Ignore Vim swap files
+*.swp
+*.swo
+*.swn
+
+# Ignore Vim backup files
+*~
+
+# Ignore Vim session files
+*.vim
+
+# Ignore Vim temporary files
+.viminfo
+
+# Ignore build artifacts
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.out
+
+# Ignore R package build artifacts
+*.tar.gz
+*.Rcheck/
+
+# Ignore any other files generated during development
+

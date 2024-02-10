@@ -1,0 +1,7 @@
+Package: reactome-stats-package
+Type: Package
+Title: Reactome Statistics Generator
+Version: 0.1.0
+Author: Adam Wright
+Maintainer: Adam Wright <adam.wright@oicr.on.ca>
+Description: A tool for generating statistical insights into Reactome databases for being displayed in the Reactome portal (reactome.org)

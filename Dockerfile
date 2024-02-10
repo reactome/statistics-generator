@@ -2,6 +2,8 @@ FROM rocker/tidyverse:4.3.1
 
 ENV DEBIAN_FRONTEND noninteractive
 
+WORKDIR /app
+
 RUN apt-get update && apt-get install -y \
     libssl-dev \
     libcurl4-openssl-dev \
@@ -16,8 +18,9 @@ RUN curl -o /tmp/cyphershell.deb 'https://dist.neo4j.org/cypher-shell/cypher-she
 
 COPY install_packages.R install_packages.R
 
-RUN Rscript --save install_packages.R
+RUN Rscript --save install_packages.R && \
+    rm -rf /usr/local/lib/R/site-library/*/doc
 
-COPY . . 
+COPY reactome-stats-package /app
 
-CMD ["Rscript", "reactome_release_stats.R", "--help"]
+CMD ["Rscript", "R/run.R", "--help"]

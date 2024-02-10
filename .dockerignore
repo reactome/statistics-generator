@@ -1,0 +1,55 @@
+# Ignore all files except Dockerfile and install_packages.R
+*
+!Dockerfile
+!install_packages.R
+!reactome-stats-package/*
+
+# Ignore Jenkins files
+Jenkinsfile
+Jenkinsfile-ci
+
+# Ignore license file if not needed in the image
+LICENSE
+
+# Ignore R specific files and directories
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+.Rprofile
+
+# Ignore git related files
+.git/
+.gitignore
+.gitattributes
+
+# Ignore any other files not needed in the image
+# Add more lines as necessary based on your specific requirements
+# Ignore all files except Dockerfile and install_packages.R
+*
+!Dockerfile
+!install_packages.R
+
+# Ignore Jenkins files
+Jenkinsfile
+Jenkinsfile-ci
+
+# Ignore license file if not needed in the image
+LICENSE
+
+# Ignore R specific files and directories
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+.Rprofile
+
+# Ignore git related files
+.git/
+.gitignore
+.gitattributes
+
+# Ignore any other files not needed in the image
+# Add more lines as necessary based on your specific requirements

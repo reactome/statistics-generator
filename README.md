@@ -68,3 +68,15 @@ docker run -v $(pwd)/output:/output --net=host  reactome/statistics-generator:1.
 setting "net" equal to "host" will make it so that the statistics-generator has access to the noe4j running on the host.
 
 This repo is being continuously integrated using Jenkins using the Jenkinsfile-ci and the statistics-generator image is stored in ECR.
+
+
+## Local Linting with Docker
+
+To maintain code quality and style consistency, we use `lintr` for local linting. You can easily run `lintr` in a Docker container to ensure your changes adhere to our coding standards.
+
+### Build Docker Image for `lintr`
+
+```bash
+docker build -t statistics-generator-r-linter -f Dockerfile.lintr .
+```
+
