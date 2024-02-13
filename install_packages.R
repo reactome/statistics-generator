@@ -1,5 +1,6 @@
 print("Installing Packages")
 
+install.packages("ape")
 install.packages("pandoc")
 install.packages("plotly")
 install.packages("htmlwidgets")
