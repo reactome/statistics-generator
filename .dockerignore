@@ -1,0 +1,14 @@
+# Manual folder
+reactome-stats-package/man/
+
+# Ignore Docker related files
+.DS_Store
+.Dockerfile.swp
+
+# Ignore R package artifacts
+*.tar.gz
+*.Rcheck/
+
+# Ignore Vim-related files
+*.swp
+
