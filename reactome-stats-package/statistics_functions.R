@@ -12,6 +12,7 @@ suppressPackageStartupMessages(library("patchwork"))
 suppressPackageStartupMessages(library("neo4jshell"))
 suppressPackageStartupMessages(library("jsonlite"))
 suppressPackageStartupMessages(library("ape"))
+suppressPackageStartupMessages(library("tibble"))
 
 
 plot_stats <- function(stats_data,
