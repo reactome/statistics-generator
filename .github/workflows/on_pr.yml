@@ -23,10 +23,15 @@ jobs:
             - run: install.packages("lintr")
               shell: Rscript {0}
             
-            - run: lintr::lint("reactome_release_stats.R")
+            - run: lintr::lint("reactome-stats-package/run.R")
               shell: Rscript {0}
               env:
                 LINTR_ERROR_ON_LINT: true
+            - run: lintr::lint("reactome-stats-package/statistics_functions.R")
+              shell: Rscript {0}
+              env:
+                LINTR_ERROR_ON_LINT: true
+
 
     docker-build:
         runs-on: ubuntu-latest
