@@ -28,7 +28,7 @@ plot_stats <- function(stats_data,
                        tree_file,
                        need_html = FALSE) {
 
-  SPECIES <- NULL
+  SPECIES <- NULL # nolint[object_usage_linter]
 
   # Make phyloTree.
   phylotree <- read.tree(file = tree_file)
@@ -75,8 +75,8 @@ plot_stats <- function(stats_data,
 
   # plot all four features along with tree
   ra_stats_long <- ra_stats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature)) # nolint[object_usage_linter]
-  bar_plot <- ra_stats_long %>% ggplot(aes(x = full_name, y = counts, fill = feature,
-                                          tooltip = tooltip,
+  bar_plot <- ra_stats_long %>% ggplot(aes(x = full_name, y = counts, fill = feature, # nolint[object_usage_linter]
+                                          tooltip = tooltip, # nolint[object_usage_linter]
                                           data_id = feature)) + # nolint[object_usage_linter]
     geom_bar_interactive(stat = "identity", position = "dodge", color = "#00000022",
                          linewidth = 0.2, width = 0.8) +
@@ -107,10 +107,10 @@ plot_stats <- function(stats_data,
   ggsave(combined_plot, file = paste0(four_stats_out_file, ".png"), width = 14, height = 8, dpi = 300)
 
   # plot "reactions" counts along with tree, normalized to counts in H. sapiens.
-  ra_stats_rxns <- ra_stats %>% mutate(pct_rxns = 100 * REACTIONS / max(REACTIONS))
+  ra_stats_rxns <- ra_stats %>% mutate(pct_rxns = 100 * REACTIONS / max(REACTIONS)) # nolint[object_usage_linter]
   ra_stats_rxns$SPECIES <- factor(ra_stats_rxns$SPECIES,
                                  levels = ordered_names)
-  rxn_plot <- ra_stats_rxns %>% ggplot(aes(x = SPECIES, y = pct_rxns)) +
+  rxn_plot <- ra_stats_rxns %>% ggplot(aes(x = SPECIES, y = pct_rxns)) + # nolint[object_usage_linter]
     geom_bar(aes(color = ifelse(SPECIES == "Homo sapiens", "highlight", "default")),
              stat = "identity", fill = "#006782", width = 0.7, linewidth = 0.5) +
     scale_color_manual(values = c(highlight = "black", default = "gray")) +
