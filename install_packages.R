@@ -8,8 +8,8 @@ install.packages("patchwork")
 install.packages("ggiraph")
 install.packages("magrittr")
 
-#install.packages("ggplot2")
-#install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("tidyverse")
 
 install.packages("neo4jshell")
 install.packages("docopt")
