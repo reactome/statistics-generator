@@ -8,9 +8,9 @@ suppressPackageStartupMessages(library("neo4jshell"))
 "Statistics Generator
 
 Usage:
-  reactome_release_stats.R [options] <release_date>
-  reactome_release_stats.R (-h | --help)
-  reactome_release_stats.R --version
+  run.R [options] <release_date>
+  run.R (-h | --help)
+  run.R --version
 
 Options:
   -h --help      Show this screen.

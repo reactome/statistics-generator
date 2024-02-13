@@ -32,6 +32,10 @@ jobs:
               env:
                 LINTR_ERROR_ON_LINT: true
 
+            - run: lintr::lint("reactome-stats-package/connect_neo4j.R")
+              shell: Rscript {0}
+              env:
+                LINTR_ERROR_ON_LINT: true
 
     docker-build:
         runs-on: ubuntu-latest
