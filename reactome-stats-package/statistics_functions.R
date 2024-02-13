@@ -1,6 +1,7 @@
 source("connect_neo4j.R")
 
 suppressPackageStartupMessages(library("tidyverse"))
+suppressPackageStartupMessages(library("tidyr"))
 suppressPackageStartupMessages(library("magrittr"))
 suppressPackageStartupMessages(library("ggiraph"))
 suppressPackageStartupMessages(library("htmlwidgets"))
@@ -13,6 +14,7 @@ suppressPackageStartupMessages(library("neo4jshell"))
 suppressPackageStartupMessages(library("jsonlite"))
 suppressPackageStartupMessages(library("ape"))
 suppressPackageStartupMessages(library("tibble"))
+suppressPackageStartupMessages(library("dplyr"))
 
 
 plot_stats <- function(stats_data,
@@ -24,6 +26,9 @@ plot_stats <- function(stats_data,
                        release_date,
                        tree_file,
                        need_html = FALSE) {
+
+  SPECIES <- NULL
+
   # Make phyloTree.
   phylotree <- read.tree(file = tree_file)
   phylotree$tip.label <- gsub("_", " ", phylotree$tip.label)

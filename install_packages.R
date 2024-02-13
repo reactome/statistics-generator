@@ -10,6 +10,8 @@ install.packages("magrittr")
 
 install.packages("ggplot2")
 install.packages("tidyverse")
+install.packages("tidyr")
+install.packages("dplyr")
 
 install.packages("neo4jshell")
 install.packages("docopt")
