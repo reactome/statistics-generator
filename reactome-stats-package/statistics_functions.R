@@ -15,6 +15,7 @@ suppressPackageStartupMessages(library("jsonlite"))
 suppressPackageStartupMessages(library("ape"))
 suppressPackageStartupMessages(library("tibble"))
 suppressPackageStartupMessages(library("dplyr"))
+suppressPackageStartupMessages(library("ggplot2"))
 
 
 plot_stats <- function(stats_data,
@@ -68,15 +69,15 @@ plot_stats <- function(stats_data,
 
   #factor catgories and subcatgories.
   ra_stats_long$full_name <- factor(ra_stats_long$full_name,
-                                   levels = ordered_names)
+                                    levels = ordered_names)
   ra_stats_long$feature <- factor(ra_stats_long$feature,
                                  levels = c("PATHWAYS", "REACTIONS", "COMPLEXES", "PROTEINS", "ISOFORMS"))
 
   # plot all four features along with tree
-  ra_stats_long <- ra_stats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature))
+  ra_stats_long <- ra_stats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature)) # nolint[object_usage_linter]
   bar_plot <- ra_stats_long %>% ggplot(aes(x = full_name, y = counts, fill = feature,
                                           tooltip = tooltip,
-                                          data_id = feature)) +
+                                          data_id = feature)) + # nolint[object_usage_linter]
     geom_bar_interactive(stat = "identity", position = "dodge", color = "#00000022",
                          linewidth = 0.2, width = 0.8) +
     geom_hline(yintercept = 0, linewidth = 0.2) +
