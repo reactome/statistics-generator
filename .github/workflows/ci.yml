@@ -21,7 +21,7 @@ permissions:
 
 jobs:
     lint:
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -49,8 +49,6 @@ jobs:
               shell: Rscript {0}
               env:
                 LINTR_ERROR_ON_LINT: true
-
-
 
     docker-build:
         runs-on: ubuntu-latest
