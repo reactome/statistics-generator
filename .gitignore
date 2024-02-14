@@ -1,1 +1,13 @@
+# Ignore output directory
 output/
+
+# Ignore R package artifacts
+*.tar.gz
+*.Rcheck/
+
+# Ignore Docker related files
+.DS_Store
+.Dockerfile.swp
+
+# Ignore Vim-related files
+*.swp

@@ -6,21 +6,21 @@ Cypher queries are used to generate stats files. This file is used for the R scr
 
 ## R script to generate image files
 
-reactome_release_stats.R is used to generate the plot for the release stats. To use this script, install R first. It is supposed to work with the latest version of R. But using **R 4.2** is recommended to avoid any incompatibility headache with used libraries. 
+run.R is used to generate the plot for the release stats. To use this script, install R first. It is supposed to work with the latest version of R. But using **R 4.2** is recommended to avoid any incompatibility headache with used libraries. 
 
 To run this script, the tree file, species_tree.nwk, is needed. This tree file was generated using [TimeTree](http://timetree.org "timetree") and displayed on the linear timescale for distances between species.
 
 To run this script, provide the following parameter in a script as follows:
 
 ```
-Rscipt reactome_release_stats.R --help
+Rscipt run.R --help
 ```
 
 ```
 Usage:
-  reactome_release_stats.R [options] <release_date>
-  reactome_release_stats.R (-h | --help)
-  reactome_release_stats.R --version
+  run.R [options] <release_date>
+  run.R (-h | --help)
+  run.R --version
 
 Options:
   -h --help      Show this screen.
@@ -62,7 +62,7 @@ make build-image
 To run the image:
 
 ```bash
-docker run -v $(pwd)/output:/output --net=host  reactome/statistics-generator:1.0.0 /bin/bash -c 'Rscript reactome_release_stats.R "June 2023"'
+docker run -v $(pwd)/output:/output --net=host  reactome/statistics-generator:1.0.0 /bin/bash -c 'Rscript run.R "June 2023"'
 ```
 
 setting "net" equal to "host" will make it so that the statistics-generator has access to the noe4j running on the host.

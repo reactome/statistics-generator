@@ -1,7 +1,7 @@
-#!/usr/bin/env Rscript
+source("connect_neo4j.R")
 
-suppressPackageStartupMessages(library("docopt"))
 suppressPackageStartupMessages(library("tidyverse"))
+suppressPackageStartupMessages(library("tidyr"))
 suppressPackageStartupMessages(library("magrittr"))
 suppressPackageStartupMessages(library("ggiraph"))
 suppressPackageStartupMessages(library("htmlwidgets"))
@@ -12,68 +12,11 @@ suppressPackageStartupMessages(library("gt"))
 suppressPackageStartupMessages(library("patchwork"))
 suppressPackageStartupMessages(library("neo4jshell"))
 suppressPackageStartupMessages(library("jsonlite"))
+suppressPackageStartupMessages(library("ape"))
+suppressPackageStartupMessages(library("tibble"))
+suppressPackageStartupMessages(library("dplyr"))
+suppressPackageStartupMessages(library("ggplot2"))
 
-"Statistics Generator
-
-Usage:
-  reactome_release_stats.R [options] <release_date>
-  reactome_release_stats.R (-h | --help)
-  reactome_release_stats.R --version
-
-Options:
-  -h --help      Show this screen.
-  --version      Show version.
-  --host=<host>   Neo4j host [default: localhost]
-  --port=<port>   Neo4j port [default: 7687]
-  --user=<user>   Neo4j username [default: neo4j]
-  --password=<password> The password for neo4j database
-  --no-html    Set of you don\'t want to generate the interactive html file [default: FALSE]
-  --output=DIR  Folder to put output files into [default: output]
-  --tree=FILE    The species tree file [default: species_tree.nwk]
-
-" -> doc
-arguments <- docopt(doc, version = "1.0.0")
-
-graphdb <- list(
-  address = paste0("bolt://", paste(arguments$host, arguments$port, sep = ":")),
-  uid = arguments$user,
-  pwd = arguments$password
-)
-
-cql <- "MATCH (n:DBInfo) RETURN n.version AS version;"
-db_info <- neo4j_query(graphdb, cql)
-
-release_version <- db_info[1, "version"]
-print(paste("release_version", release_version, sep = ": "))
-
-species_query_file_path <- "./cypher_queries/species.cyp"
-cql <- readChar(species_query_file_path, file.info(species_query_file_path)$size)
-species_data <- neo4j_query(graphdb, cql)
-
-release_date <- arguments$release_date
-tree_file <- arguments$tree
-need_html <- ifelse(arguments$no_html == "TRUE", FALSE, TRUE)
-
-stats_data <- paste(arguments$output, "release_stats", sep = "/")
-write.table(species_data,
-            file = stats_data,
-            quote = FALSE,
-            sep = "\t",
-            row.names = FALSE,
-            col.names = TRUE)
-
-four_stats_out_file <- stats_data
-ordered_table_out_file_tsv <- paste(arguments$output, "ordered_release_stats.tsv", sep = "/")
-ordered_table_out_file_html <- paste(arguments$output, "ordered_release_stats.html", sep = "/")
-reaction_stats_out_file <- paste(arguments$output, "reaction_release_stats", sep = "/")
-summary_stats_out_file <- paste(arguments$output, "summary_stats.json", sep = "/")
-
-summary_query_filepath <- "./cypher_queries/summary.cyp"
-cql <- readChar(summary_query_filepath, file.info(summary_query_filepath)$size)
-summary_data <- neo4j_query(graphdb, cql)
-
-summary_json <- toJSON(summary_data, pretty = TRUE)
-cat(summary_json, file = summary_stats_out_file)
 
 plot_stats <- function(stats_data,
                        four_stats_out_file,
@@ -84,6 +27,9 @@ plot_stats <- function(stats_data,
                        release_date,
                        tree_file,
                        need_html = FALSE) {
+
+  SPECIES <- NULL # nolint[object_usage_linter]
+
   # Make phyloTree.
   phylotree <- read.tree(file = tree_file)
   phylotree$tip.label <- gsub("_", " ", phylotree$tip.label)
@@ -123,15 +69,15 @@ plot_stats <- function(stats_data,
 
   #factor catgories and subcatgories.
   ra_stats_long$full_name <- factor(ra_stats_long$full_name,
-                                   levels = ordered_names)
+                                    levels = ordered_names)
   ra_stats_long$feature <- factor(ra_stats_long$feature,
                                  levels = c("PATHWAYS", "REACTIONS", "COMPLEXES", "PROTEINS", "ISOFORMS"))
 
   # plot all four features along with tree
-  ra_stats_long <- ra_stats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature))
-  bar_plot <- ra_stats_long %>% ggplot(aes(x = full_name, y = counts, fill = feature,
-                                          tooltip = tooltip,
-                                          data_id = feature)) +
+  ra_stats_long <- ra_stats_long %>% mutate(tooltip = paste(full_name, "\n", counts, feature)) # nolint[object_usage_linter]
+  bar_plot <- ra_stats_long %>% ggplot(aes(x = full_name, y = counts, fill = feature, # nolint[object_usage_linter]
+                                          tooltip = tooltip, # nolint[object_usage_linter]
+                                          data_id = feature)) + # nolint[object_usage_linter]
     geom_bar_interactive(stat = "identity", position = "dodge", color = "#00000022",
                          linewidth = 0.2, width = 0.8) +
     geom_hline(yintercept = 0, linewidth = 0.2) +
@@ -161,10 +107,10 @@ plot_stats <- function(stats_data,
   ggsave(combined_plot, file = paste0(four_stats_out_file, ".png"), width = 14, height = 8, dpi = 300)
 
   # plot "reactions" counts along with tree, normalized to counts in H. sapiens.
-  ra_stats_rxns <- ra_stats %>% mutate(pct_rxns = 100 * REACTIONS / max(REACTIONS))
+  ra_stats_rxns <- ra_stats %>% mutate(pct_rxns = 100 * REACTIONS / max(REACTIONS)) # nolint[object_usage_linter]
   ra_stats_rxns$SPECIES <- factor(ra_stats_rxns$SPECIES,
                                  levels = ordered_names)
-  rxn_plot <- ra_stats_rxns %>% ggplot(aes(x = SPECIES, y = pct_rxns)) +
+  rxn_plot <- ra_stats_rxns %>% ggplot(aes(x = SPECIES, y = pct_rxns)) + # nolint[object_usage_linter]
     geom_bar(aes(color = ifelse(SPECIES == "Homo sapiens", "highlight", "default")),
              stat = "identity", fill = "#006782", width = 0.7, linewidth = 0.5) +
     scale_color_manual(values = c(highlight = "black", default = "gray")) +
@@ -204,14 +150,3 @@ plot_stats <- function(stats_data,
     htmlwidgets::saveWidget(as_widget(ff), paste0(four_stats_out_file, ".html"))
   }
 }
-
-
-plot_stats(stats_data,
-           four_stats_out_file,
-           reaction_stats_out_file,
-           ordered_table_out_file_tsv,
-           ordered_table_out_file_html,
-           release_version,
-           release_date,
-           tree_file,
-           need_html)

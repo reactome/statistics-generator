@@ -18,6 +18,6 @@ COPY install_packages.R install_packages.R
 
 RUN Rscript --save install_packages.R
 
-COPY . . 
+COPY reactome-stats-package .
 
-CMD ["Rscript", "reactome_release_stats.R", "--help"]
+CMD ["Rscript", "run.R", "--help"]

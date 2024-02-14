@@ -1,5 +1,6 @@
 print("Installing Packages")
 
+install.packages("ape")
 install.packages("pandoc")
 install.packages("plotly")
 install.packages("htmlwidgets")
@@ -7,8 +8,10 @@ install.packages("patchwork")
 install.packages("ggiraph")
 install.packages("magrittr")
 
-#install.packages("ggplot2")
-#install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("tidyverse")
+install.packages("tidyr")
+install.packages("dplyr")
 
 install.packages("neo4jshell")
 install.packages("docopt")
