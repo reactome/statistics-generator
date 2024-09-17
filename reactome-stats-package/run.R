@@ -28,7 +28,7 @@ arguments <- docopt(doc, version = "1.0.0")
 
 graphdb <- connect_neo4j(arguments)
 
-cql <- "MATCH (n:DBInfo) RETURN n.version AS version;"
+cql <- "MATCH (n:DBInfo) RETURN n.releaseNumber AS version;"
 db_info <- neo4j_query(graphdb, cql)
 
 release_version <- db_info[1, "version"]
