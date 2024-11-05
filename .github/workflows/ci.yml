@@ -56,7 +56,7 @@ jobs:
               with:
                 context: .
                 file: Dockerfile
-                tags: tmp-tag
+                tags: statistics-generator:${{ github.sha }}
                 outputs: type=docker,dest=/tmp/image.tar
 
             - uses: actions/upload-artifact@v4
@@ -98,7 +98,7 @@ jobs:
                 IMG_TAG: ${{ steps.get-hash.outputs.SHORT_SHA }}
               run: |
                 docker load --input /tmp/image.tar
-                docker image tag tmp-tag:${{ github.sha }} $AWS_REGISTRY/$AWS_REGISTRY_ALIAS/$AWS_REPO:$IMG_TAG
-                docker image tag tmp-tag:${{ github.sha }} $AWS_REGISTRY/$AWS_REGISTRY_ALIAS/$AWS_REPO:latest
+                docker image tag statistics-generator:${{ github.sha }} $AWS_REGISTRY/$AWS_REGISTRY_ALIAS/$AWS_REPO:$IMG_TAG
+                docker image tag statistics-generator:${{ github.sha }} $AWS_REGISTRY/$AWS_REGISTRY_ALIAS/$AWS_REPO:latest
                 docker push $AWS_REGISTRY/$AWS_REGISTRY_ALIAS/$AWS_REPO:$IMG_TAG
                 docker push $AWS_REGISTRY/$AWS_REGISTRY_ALIAS/$AWS_REPO:latest
