@@ -10,17 +10,20 @@ pipeline {
     agent any
     
     environment {
-       ECRURL = '851227637779.dkr.ecr.us-east-1.amazonaws.com'
+       ECRURL = 'public.ecr.aws/reactome/statistics-generator'
+       CONT_NAME = 'stats_container'
     }
     
     stages {
         stage('pull image') {
             steps {
                 script{
-                    sh("eval \$(aws ecr get-login --no-include-email --region us-east-1)")
-                    docker.withRegistry("https://" + ECRURL) {
-                        docker.image("statistics-generator:latest").pull()
-                    }
+                    sh "docker pull ${ECR_URL}:latest"
+				    sh """
+					    if docker ps -a --format '{{.Names}}' | grep -Eq '${CONT_NAME}'; then
+						    docker rm -f ${CONT_NAME}
+					    fi
+				    """
                 }
             }
         }
@@ -46,7 +49,7 @@ pipeline {
                     sh "sudo rm output/ -rf"
                     sh "mkdir -p output"
                     withCredentials([usernamePassword(credentialsId: 'neo4jUsernamePassword', passwordVariable: 'pass', usernameVariable: 'user')]){
-                        sh "docker run -v \$(pwd)/output:/output --net=host  ${ECRURL}/statistics-generator:latest /bin/bash -c \'Rscript run.R --user=$user --password=$pass \"${releaseMonth} ${releaseYear}\"\'"
+                        sh "docker run -v \$(pwd)/output:/output --net=host --name ${CONT_NAME} ${ECRURL}:latest /bin/bash -c \'Rscript run.R --user=$user --password=$pass \"${releaseMonth} ${releaseYear}\"\'"
                     }
                 }
             }
