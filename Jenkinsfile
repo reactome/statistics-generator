@@ -10,21 +10,20 @@ pipeline {
     agent any
     
     environment {
-       ECRURL = 'public.ecr.aws/reactome/statistics-generator'
-       CONT_NAME = 'stats_container'
+		    ECR_URL = 'public.ecr.aws/reactome/statistics-generator'
+		    CONT_NAME = 'stats_generator_container'
     }
     
     stages {
-        stage('pull image') {
-            steps {
-                script{
-                    sh "docker pull ${ECR_URL}:latest"
-				    sh """
-					    if docker ps -a --format '{{.Names}}' | grep -Eq '${CONT_NAME}'; then
-						    docker rm -f ${CONT_NAME}
-					    fi
-				    """
-                }
+        // This stage pulls the docker image and removes old containers
+		    stage('Setup: Pull and clean docker environment'){
+            steps{
+                sh "docker pull ${ECR_URL}:latest"
+                sh """
+                    if docker ps -a --format '{{.Names}}' | grep -Eq '${CONT_NAME}'; then
+                       docker rm -f ${CONT_NAME}
+                    fi
+                """
             }
         }
       
@@ -49,7 +48,7 @@ pipeline {
                     sh "sudo rm output/ -rf"
                     sh "mkdir -p output"
                     withCredentials([usernamePassword(credentialsId: 'neo4jUsernamePassword', passwordVariable: 'pass', usernameVariable: 'user')]){
-                        sh "docker run -v \$(pwd)/output:/output --net=host --name ${CONT_NAME} ${ECRURL}:latest /bin/bash -c \'Rscript run.R --user=$user --password=$pass \"${releaseMonth} ${releaseYear}\"\'"
+                        sh "docker run -v \$(pwd)/output:/output --net=host --name ${CONT_NAME} ${ECR_URL}:latest /bin/bash -c \'Rscript run.R --user=$user --password=$pass \"${releaseMonth} ${releaseYear}\"\'"
                     }
                 }
             }
