@@ -10,13 +10,13 @@ pipeline {
     agent any
     
     environment {
-		ECR_URL = 'public.ecr.aws/reactome/statistics-generator'
-		CONT_NAME = 'stats_generator_container'
+		    ECR_URL = 'public.ecr.aws/reactome/statistics-generator'
+		    CONT_NAME = 'stats_generator_container'
     }
     
     stages {
         // This stage pulls the docker image and removes old containers
-		stage('Setup: Pull and clean docker environment'){
+		    stage('Setup: Pull and clean docker environment'){
             steps{
                 sh "docker pull ${ECR_URL}:latest"
                 sh """
